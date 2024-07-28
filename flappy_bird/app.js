@@ -12,13 +12,13 @@ let config = {
         arcade: {
             gravity: {y: 300},
             debug: false
-        }
+        },
     },
     scene: {
         preload: preload,
         create: create,
         update: update
-    }
+    },
 };
 
 // Creating game variable of a new instance of Phaser.game
@@ -57,8 +57,6 @@ let messageToPlayer;
 function create () {
     const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
 
-    messageToPlayer = this.add.text(0, 0, 'Instructions: Press spacebar to start', {fontFamily: '"Comic Sans MS", Times, serif', fontSize: "20px", color: "white", backgroundColor: "black"});
-    Phaser.Display.Align.In.BottomCenter(messageToPlayer, background, 0, 50) // aligns messageToPlayer to the bottom center of the background image 
 
     // topColumns variable: creates static column
     // repeat: creates one additional column
@@ -91,7 +89,9 @@ function create () {
     bird = this.physics.add.sprite(0, 50, 'bird').setScale(2);
     bird.setBounce(0.2);
     bird.setCollideWorldBounds(true);
-    this.physics.add.collider(bird, road);
+
+    messageToPlayer = this.add.text(0, 0, 'Instructions: Press spacebar to start', {fontFamily: '"Comic Sans MS", Times, serif', fontSize: "20px", color: "white", backgroundColor: "black"});
+    Phaser.Display.Align.In.BottomCenter(messageToPlayer, background, 0, 50) // aligns messageToPlayer to the bottom center of the background image 
 
     // this.physics.add.overlap(): checks if target body (first parameter) intersects with other given bodies
     // => arrow function defining
@@ -129,7 +129,7 @@ function update () {
     
     // if user presses up button, the bird gets an upward velocity of -160 -> moves bird upwards
     if (cursors.up.isDown) {
-        bird.setVelocityY9(-160);
+        bird.setVelocityY(-160);
     }
     // prevents user from moving the bird if it lands on the ground -> bird cannot move up if it has landed
     if (cursors.up.isDown && !hasLanded) {
@@ -139,10 +139,7 @@ function update () {
     if(!hasLanded) {
         bird.body.velocity.x = 50;
     }
-    if (hasLanded || hasBumped) {
-        bird.body.velocity.x = 0;
-        messageToPlayer.text = "Oh no! You crashed!"
-    }
+   
     //if bird bumps into column, stop moving right
     if (cursors.up.isDown && !hasLanded && !hasBumped) {
         bird.setVelocityY(-160);
@@ -153,8 +150,14 @@ function update () {
         bird.body.velocity.x = 50;
     } 
 
-    // if it has landed or has bumped or game has not started, bird doesn't move
-    if (hasLanded || hasBumped || !isGameStarted) {
+    // if it has landed or has bumped, bird doesn't move
+    if (hasLanded || hasBumped  ) {
+        bird.body.velocity.x = 0;
+        bird.setVelocityY(160);
+    }
+    
+    // if game has not started, bird doesn't move
+    if (!isGameStarted) {
         bird.body.velocity.x = 0;
     }
 
@@ -162,5 +165,10 @@ function update () {
     if (bird.x > 750) {
         bird.setVelocityY(40);
         messageToPlayer.text = "Congrats! You won!";
+    }
+
+    if (hasLanded || hasBumped) {
+        bird.body.velocity.x = 0;
+        messageToPlayer.text = "Oh no! You crashed!"
     }
 }
